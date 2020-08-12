@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="payment_acquirer_ebizcharge" model="payment.acquirer">
+            <field name="name">Ebizcharge</field>
+            <field name="image_128" type="base64" file="payment_ebizcharge/static/src/img/ebiz_icon.png"/>
+            <field name="provider">ebizcharge</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="view_template_id" ref="ebizcharge_form"/>
+            <field name="registration_view_template_id" ref="ebizcharge_s2s_form"/>
+        </record>
+	</data>
+</odoo>
