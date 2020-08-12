@@ -23,30 +23,47 @@ class CustomerEbizcharge(models.Model):
     @api.model
     # def create(self, values):
     def create(self, values):
-        wsdl = 'https://soap.ebizcharge.net/eBizService.svc?singleWsdl'
-        client = zeep.Client(wsdl=wsdl)
+        res = super(CustomerEbizcharge, self).create(values)
 
-        securityToken = {
-                        "UserId":"magento2",
-                        "SecurityId":"9ca3a18e-b8c4-4fad-bfb2-3cff4cdb7b86",
-                        "Password" : "magento2"}
 
-        customer = {
-                    "FirstName" : "Mark",
-                    "LastName" : "Wilson",
-                    "CompanyName" : "CBS",
-                    "CustomerId" : "C-E&000002",
-                    "CellPhone" : "714-555-5014",
-                    "Fax" : "714-555-5010",
-                    "Phone" : "714-555-5015"}
-
-        # result = client.service.AddCustomer('0814c940-5ea6-425e-8343-994c126caa13', 'magento2', 'magento2')
-        result = client.service.AddCustomer(securityToken, customer)
         # credentials = self.env['payment.acquirer'].search([('id','=',13)])
         # # ebizcharge_security_id
         # # ebizcharge_user_id
         # # ebizcharge_password_id
-        res = super(CustomerEbizcharge, self).create(values)
+
+        wsdl = 'https://soap.ebizcharge.net/eBizService.svc?singleWsdl'
+        client = zeep.Client(wsdl=wsdl)
+
+        # securityToken = {
+        #                 "UserId":"magento2",
+        #                 "SecurityId":"9ca3a18e-b8c4-4fad-bfb2-3cff4cdb7b86",
+        #                 "Password" : "magento2"}
+
+        getSecurityToken = {
+            "UserId": "",
+            "SecurityId": "9ca3a18e-b8c4-4fad-bfb2-3cff4cdb7b86",
+            "Password": ""}
+
+        '''  Test Code  '''
+        # customer = {
+        #             "FirstName" : "Mark",
+        #             "LastName" : "Wilson",
+        #             "CompanyName" : "CBS",
+        #             "CustomerId" : "C-E&000002",
+        #             "CellPhone" : "714-555-5014",
+        #             "Fax" : "714-555-5010",
+        #             "Phone" : "714-555-5015"}
+
+        # customer = {
+        #             "FirstName": res.name,
+        #             "CustomerId": res.id,
+        #             "CellPhone": res.mobile,
+        #             "Phone": res.phone}
+        #
+        # result = client.service.AddCustomer(securityToken, customer)
+        get_result = client.service.GetCustomer(getSecurityToken, "C-E&000002", "")
+
+
         return res
 
 class PaymentAcquirerEbizcharge(models.Model):
