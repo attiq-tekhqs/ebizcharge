@@ -20,6 +20,9 @@ _logger = logging.getLogger(__name__)
 class CustomerEbizcharge(models.Model):
     _inherit = 'res.partner'
 
+    ebizcharge_customer_id = fields.Char(string='Customer Internal Id', required=False)
+    ebizcharge_security_token = fields.Char(string='Security Token', required=False)
+
     @api.model
     # def create(self, values):
     def create(self, values):
@@ -105,8 +108,113 @@ class PaymentAcquirerEbizcharge(models.Model):
     def _ebizcharge_generate_hashing(self, values):
         return ""
 
+    ''' New implementation  '''
+    def ebizcharge_customer(self, values):
+        self.ensure_one()
+
+        wsdl = 'https://soap.ebizcharge.net/eBizService.svc?singleWsdl'
+        client = zeep.Client(wsdl=wsdl)
+
+        getSecurityToken = {
+            "UserId": self.ebizcharge_user_id,
+            "SecurityId": self.ebizcharge_security_id,
+            "Password": self.ebizcharge_password}
+
+        addSecurityToken = {
+            "UserId": self.ebizcharge_user_id,
+            "SecurityId": self.ebizcharge_security_id,
+            "Password": self.ebizcharge_password}
+
+        # searchFilter = {
+        #     "FieldName": "CustomerId",
+        #     "ComparisonOperator": "eq",
+        #     'FieldValue': values['partner_id']
+        # }
+
+        # complex_filter = [{
+        #     "filter":
+        #     [{
+        #     "FieldName": "CustomerId",
+        #     "FieldValue": "3",
+        #     "ComparisonOperator": "eq",
+        #     }]
+        # }]
+
+        complex_filter = {
+            "FieldName": "CustomerId",
+            "FieldValue": "3",
+            "ComparisonOperator": "eq",
+
+        }
+
+        ''' According to  PHP implementation  '''
+        code_filters = {
+            "FieldName": "Email",
+            "ComparisonOperator": "eq",
+            "FieldValue" : values['partner_email']
+        }
+
+        params = {
+            "securityToken": getSecurityToken,
+            "filters": {"SearchFilter": code_filters},
+            "includeCustomerToken": 1,
+            "includePaymentMethodProfiles": 0,
+            "countOnly": 0,
+            "start": 0,
+            "limit": 10
+        }
+
+        # get_result = client.service.GetCustomer(getSecurityToken, values['partner_id'], "")
+        try:
+            # client.service.SearchCustomerList(getSecurityToken, code_filters, 1, 0, 0, 0, 100)
+            search_customer = client.service.SearchCustomerList(params)
+            get_result = client.service.GetCustomer(getSecurityToken, "200233", "")
+        except:
+
+            customer = {
+                "FirstName": values['partner_first_name'],
+                "LastName": values['partner_last_name'],
+                "CustomerId": values['partner_id'],
+                # "CompanyName": company_name,
+                "Phone": values['partner_phone'] }
+
+            result = client.service.AddCustomer(addSecurityToken, customer)
+
+            odoo_customer = self.env['res.partner'].search([('id', '=', result['CustomerId'])])
+
+            odoo_customer.write({
+                'ebizcharge_customer_id' : result['CustomerInternalId'],
+                'ebizcharge_security_token': result['CustomerToken']
+            })
+            self.env.cr.commit()
+            print("No record Found")
+        print("Out of Get Request")
+        # addSecurityToken = {
+        #     "UserId": self.ebizcharge_user_id,
+        #     "SecurityId": self.ebizcharge_security_id,
+        #     "Password": self.ebizcharge_password}
+
+        ''' For company  '''
+        # if values['partner_company_name']:
+        #     company_name = values['partner_company_name']
+        # else:
+        #     company_name = ""
+
+        # customer = {
+        #             "FirstName": values['partner_first_name'],
+        #             "LastName": values['partner_last_name'],
+        #             "CustomerId": values['partner_id'],
+        #             # "CompanyName": company_name,
+        #             "Phone": values['partner_phone'],}
+
+        # result = client.service.AddCustomer(addSecurityToken, customer)
+        print("Testing")
+
     def ebizcharge_form_generate_values(self, values):
         self.ensure_one()
+        print("Running")
+
+        self.ebizcharge_customer(values)
 
         # State code is only supported in US, use state name by default
         state = values['partner_state'].name if values.get('partner_state') else ''

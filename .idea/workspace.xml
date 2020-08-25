@@ -11369,6 +11369,10 @@
       <change beforePath="$PROJECT_DIR$/../payment_buckaroo/tests/test_buckaroo.py" beforeDir="false" afterPath="$PROJECT_DIR$/../payment_buckaroo/tests/test_buckaroo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../payment_buckaroo/views/payment_buckaroo_templates.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../payment_buckaroo/views/payment_buckaroo_templates.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../payment_buckaroo/views/payment_views.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../payment_buckaroo/views/payment_views.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/payment_ebizcharge.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/payment_ebizcharge.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/payment.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/payment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../payment_ingenico/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../payment_ingenico/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../payment_ingenico/__manifest__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../payment_ingenico/__manifest__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../payment_ingenico/controllers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../payment_ingenico/controllers/__init__.py" afterDir="false" />
@@ -23545,7 +23549,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1fimbnFnhdDIa3gCCFvBF6OtYCt" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -23555,10 +23559,31 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.ebiz">
     <configuration name="Ebizcharge" type="PythonConfigurationType" factoryName="Python">
+      <module name="payment_ebizcharge" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../odoo-bin" />
+      <option name="PARAMETERS" value="--config=/etc/odoo.conf" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ebiz" type="PythonConfigurationType" factoryName="Python">
       <module name="payment_ebizcharge" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -23579,6 +23604,10 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.ebiz" />
+      <item itemvalue="Python.Ebizcharge" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -23604,50 +23633,54 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="67" y="54" width="957" height="710" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1596709536409">
+    <state x="67" y="32" width="957" height="736" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1598343411258">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state x="67" y="54" width="957" height="710" key="#com.intellij.execution.impl.EditConfigurationsDialog/67.27.957.741@67.27.957.741" timestamp="1596709536409" />
-    <state x="277" y="214" key="#xdebugger.evaluate" timestamp="1597235176163">
+    <state x="67" y="32" width="957" height="736" key="#com.intellij.execution.impl.EditConfigurationsDialog/67.27.957.741@67.27.957.741" timestamp="1598343411258" />
+    <state x="341" y="210" key="#xdebugger.evaluate" timestamp="1598015611855">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state x="277" y="214" key="#xdebugger.evaluate/67.27.957.741@67.27.957.741" timestamp="1597235176163" />
-    <state width="934" height="119" key="GridCell.Tab.0.bottom" timestamp="1597238371957">
+    <state x="341" y="210" key="#xdebugger.evaluate/67.27.957.741@67.27.957.741" timestamp="1598015611855" />
+    <state x="328" y="154" width="424" height="484" key="FileChooserDialogImpl" timestamp="1598343126137">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state width="934" height="119" key="GridCell.Tab.0.bottom/67.27.957.741@67.27.957.741" timestamp="1597238371957" />
-    <state width="934" height="119" key="GridCell.Tab.0.center" timestamp="1597238371956">
+    <state x="328" y="154" width="424" height="484" key="FileChooserDialogImpl/67.27.957.741@67.27.957.741" timestamp="1598343126137" />
+    <state width="934" height="127" key="GridCell.Tab.0.bottom" timestamp="1598343624148">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state width="934" height="119" key="GridCell.Tab.0.center/67.27.957.741@67.27.957.741" timestamp="1597238371956" />
-    <state width="934" height="119" key="GridCell.Tab.0.left" timestamp="1597238371956">
+    <state width="934" height="127" key="GridCell.Tab.0.bottom/67.27.957.741@67.27.957.741" timestamp="1598343624148" />
+    <state width="934" height="127" key="GridCell.Tab.0.center" timestamp="1598343624148">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state width="934" height="119" key="GridCell.Tab.0.left/67.27.957.741@67.27.957.741" timestamp="1597238371956" />
-    <state width="934" height="119" key="GridCell.Tab.0.right" timestamp="1597238371956">
+    <state width="934" height="127" key="GridCell.Tab.0.center/67.27.957.741@67.27.957.741" timestamp="1598343624148" />
+    <state width="934" height="127" key="GridCell.Tab.0.left" timestamp="1598343624147">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state width="934" height="119" key="GridCell.Tab.0.right/67.27.957.741@67.27.957.741" timestamp="1597238371956" />
-    <state width="934" height="127" key="GridCell.Tab.1.bottom" timestamp="1597238371952">
+    <state width="934" height="127" key="GridCell.Tab.0.left/67.27.957.741@67.27.957.741" timestamp="1598343624147" />
+    <state width="934" height="127" key="GridCell.Tab.0.right" timestamp="1598343624148">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state width="934" height="127" key="GridCell.Tab.1.bottom/67.27.957.741@67.27.957.741" timestamp="1597238371952" />
-    <state width="934" height="127" key="GridCell.Tab.1.center" timestamp="1597238371951">
+    <state width="934" height="127" key="GridCell.Tab.0.right/67.27.957.741@67.27.957.741" timestamp="1598343624148" />
+    <state width="934" height="127" key="GridCell.Tab.1.bottom" timestamp="1598343624149">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state width="934" height="127" key="GridCell.Tab.1.center/67.27.957.741@67.27.957.741" timestamp="1597238371951" />
-    <state width="934" height="127" key="GridCell.Tab.1.left" timestamp="1597238371951">
+    <state width="934" height="127" key="GridCell.Tab.1.bottom/67.27.957.741@67.27.957.741" timestamp="1598343624149" />
+    <state width="934" height="127" key="GridCell.Tab.1.center" timestamp="1598343624148">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state width="934" height="127" key="GridCell.Tab.1.left/67.27.957.741@67.27.957.741" timestamp="1597238371951" />
-    <state width="934" height="127" key="GridCell.Tab.1.right" timestamp="1597238371951">
+    <state width="934" height="127" key="GridCell.Tab.1.center/67.27.957.741@67.27.957.741" timestamp="1598343624148" />
+    <state width="934" height="127" key="GridCell.Tab.1.left" timestamp="1598343624148">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state width="934" height="127" key="GridCell.Tab.1.right/67.27.957.741@67.27.957.741" timestamp="1597238371951" />
-    <state x="67" y="31" key="SettingsEditor" timestamp="1596781233931">
+    <state width="934" height="127" key="GridCell.Tab.1.left/67.27.957.741@67.27.957.741" timestamp="1598343624148" />
+    <state width="934" height="127" key="GridCell.Tab.1.right" timestamp="1598343624149">
       <screen x="67" y="27" width="957" height="741" />
     </state>
-    <state x="67" y="31" key="SettingsEditor/67.27.957.741@67.27.957.741" timestamp="1596781233931" />
+    <state width="934" height="127" key="GridCell.Tab.1.right/67.27.957.741@67.27.957.741" timestamp="1598343624149" />
+    <state x="67" y="31" key="SettingsEditor" timestamp="1598342767721">
+      <screen x="67" y="27" width="957" height="741" />
+    </state>
+    <state x="67" y="31" key="SettingsEditor/67.27.957.741@67.27.957.741" timestamp="1598342767721" />
     <state width="478" height="371" key="XDebugger.FullValuePopup" timestamp="1597143016500">
       <screen x="67" y="27" width="957" height="741" />
     </state>
@@ -23733,72 +23766,72 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>87</line>
+          <line>90</line>
           <option name="timeStamp" value="17" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>94</line>
+          <line>97</line>
           <option name="timeStamp" value="18" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>108</line>
+          <line>212</line>
           <option name="timeStamp" value="19" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>161</line>
+          <line>268</line>
           <option name="timeStamp" value="20" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>168</line>
+          <line>275</line>
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>181</line>
+          <line>288</line>
           <option name="timeStamp" value="23" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>212</line>
+          <line>319</line>
           <option name="timeStamp" value="24" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>222</line>
+          <line>329</line>
           <option name="timeStamp" value="26" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>241</line>
+          <line>348</line>
           <option name="timeStamp" value="27" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>251</line>
+          <line>358</line>
           <option name="timeStamp" value="30" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>258</line>
+          <line>365</line>
           <option name="timeStamp" value="31" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>279</line>
+          <line>386</line>
           <option name="timeStamp" value="32" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>282</line>
+          <line>389</line>
           <option name="timeStamp" value="33" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>120</line>
+          <line>227</line>
           <option name="timeStamp" value="34" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -23838,13 +23871,53 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>71</line>
+          <line>74</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/models/payment.py</url>
-          <line>33</line>
+          <line>36</line>
           <option name="timeStamp" value="47" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/controllers/main.py</url>
+          <line>14</line>
+          <option name="timeStamp" value="48" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/controllers/main.py</url>
+          <line>92</line>
+          <option name="timeStamp" value="50" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/controllers/main.py</url>
+          <line>47</line>
+          <option name="timeStamp" value="51" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/controllers/main.py</url>
+          <line>38</line>
+          <option name="timeStamp" value="52" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/controllers/main.py</url>
+          <line>25</line>
+          <option name="timeStamp" value="53" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/models/payment.py</url>
+          <line>112</line>
+          <option name="timeStamp" value="54" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/models/payment.py</url>
+          <line>201</line>
+          <option name="timeStamp" value="55" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/models/payment.py</url>
+          <line>190</line>
+          <option name="timeStamp" value="56" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
