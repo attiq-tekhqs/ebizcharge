@@ -10,6 +10,10 @@
                         <field name="ebizcharge_security_id"/>
                         <field name="ebizcharge_user_id"/>
                         <field name="ebizcharge_password" password="True"/>
+                        <field name="ebizcharge_sync"/>
+                    </group>
+                    <group attrs="{'invisible': [('provider', '!=', 'ebizcharge')], 'invisible': [('ebizcharge_sync', '=', False)]}">
+                        <button name="import_invoices" string="Import Invoices"  type="object" icon="fa-refresh"/>
                     </group>
                 </xpath>
             </field>

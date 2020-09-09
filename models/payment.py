@@ -17,65 +17,120 @@ from odoo.tools.safe_eval import safe_eval
 
 _logger = logging.getLogger(__name__)
 
+class InvoiceEbizcharge(models.Model):
+    _inherit = 'account.move'
+
+    @api.model
+    def create(self, values):
+        print("In Invoice create")
+        res = super(InvoiceEbizcharge, self).create(values)
+
+        wsdl = 'https://soap.ebizcharge.net/eBizService.svc?singleWsdl'
+        client = zeep.Client(wsdl=wsdl)
+
+        securityToken = {
+            "UserId": self.ebizcharge_user_id,
+            "SecurityId": self.ebizcharge_security_id,
+            "Password": self.ebizcharge_password
+        }
+
+        try:
+            get_response = client.service.GetCustomer(securityToken, "", values['partner'].ebizcharge_customer_id)
+        except:
+            billingAddress = {
+                "Address1": values['billing_partner_address'],
+                "City": values['billing_partner_city'],
+                "ZipCode": values['billing_partner_zip'],
+                "State": values['partner_state'].display_name
+            }
+
+            customer = {
+                "FirstName": values['partner_first_name'],
+                "LastName": values['partner_last_name'],
+                "Email": values['partner_email'],
+                "CustomerId": values['partner_id'],
+                # "CompanyName": values[''],
+                "Phone": values['partner_phone'],
+                "BillingAddress": billingAddress
+            }
+
+            add_response = client.service.AddCustomer(securityToken, customer)
+
+            if not add_response['Error']:
+                odoo_customer = self.env['res.partner'].search([('id', '=', add_response['CustomerId'])])
+                # odoo_customer = self.env['res.partner'].search([('id', '=', values['partner_id'])])
+                odoo_customer.write({
+                    'ebizcharge_customer_id': add_response['CustomerInternalId'],
+                })
+                self.env.cr.commit()
+
+        ''' Get customer through id '''
+
+        return res
+
 class CustomerEbizcharge(models.Model):
     _inherit = 'res.partner'
 
     ebizcharge_customer_id = fields.Char(string='Customer Internal Id', required=False)
     ebizcharge_security_token = fields.Char(string='Security Token', required=False)
 
-    @api.model
+    # @api.model
+    # # def create(self, values):
     # def create(self, values):
-    def create(self, values):
-        res = super(CustomerEbizcharge, self).create(values)
+    #     res = super(CustomerEbizcharge, self).create(values)
+    #
+    #     # credentials = self.env['payment.acquirer'].search([('id','=',13)])
+    #     # # ebizcharge_security_id
+    #     # # ebizcharge_user_id
+    #     # # ebizcharge_password_id
+    #
+    #     wsdl = 'https://soap.ebizcharge.net/eBizService.svc?singleWsdl'
+    #     client = zeep.Client(wsdl=wsdl)
+    #
+    #     # securityToken = {
+    #     #                 "UserId":"magento2",
+    #     #                 "SecurityId":"9ca3a18e-b8c4-4fad-bfb2-3cff4cdb7b86",
+    #     #                 "Password" : "magento2"}
+    #
+    #     getSecurityToken = {
+    #         "UserId": "",
+    #         "SecurityId": "9ca3a18e-b8c4-4fad-bfb2-3cff4cdb7b86",
+    #         "Password": ""}
+    #
+    #     '''  Test Code  '''
+    #     # customer = {
+    #     #             "FirstName" : "Mark",
+    #     #             "LastName" : "Wilson",
+    #     #             "CompanyName" : "CBS",
+    #     #             "CustomerId" : "C-E&000002",
+    #     #             "CellPhone" : "714-555-5014",
+    #     #             "Fax" : "714-555-5010",
+    #     #             "Phone" : "714-555-5015"}
+    #
+    #     # customer = {
+    #     #             "FirstName": res.name,
+    #     #             "CustomerId": res.id,
+    #     #             "CellPhone": res.mobile,
+    #     #             "Phone": res.phone}
+    #     #
+    #     # result = client.service.AddCustomer(securityToken, customer)
+    #     get_result = client.service.GetCustomer(getSecurityToken, "C-E&000002", "")
+    #
+    #     return res
 
-
-        # credentials = self.env['payment.acquirer'].search([('id','=',13)])
-        # # ebizcharge_security_id
-        # # ebizcharge_user_id
-        # # ebizcharge_password_id
-
-        wsdl = 'https://soap.ebizcharge.net/eBizService.svc?singleWsdl'
-        client = zeep.Client(wsdl=wsdl)
-
-        # securityToken = {
-        #                 "UserId":"magento2",
-        #                 "SecurityId":"9ca3a18e-b8c4-4fad-bfb2-3cff4cdb7b86",
-        #                 "Password" : "magento2"}
-
-        getSecurityToken = {
-            "UserId": "",
-            "SecurityId": "9ca3a18e-b8c4-4fad-bfb2-3cff4cdb7b86",
-            "Password": ""}
-
-        '''  Test Code  '''
-        # customer = {
-        #             "FirstName" : "Mark",
-        #             "LastName" : "Wilson",
-        #             "CompanyName" : "CBS",
-        #             "CustomerId" : "C-E&000002",
-        #             "CellPhone" : "714-555-5014",
-        #             "Fax" : "714-555-5010",
-        #             "Phone" : "714-555-5015"}
-
-        # customer = {
-        #             "FirstName": res.name,
-        #             "CustomerId": res.id,
-        #             "CellPhone": res.mobile,
-        #             "Phone": res.phone}
-        #
-        # result = client.service.AddCustomer(securityToken, customer)
-        get_result = client.service.GetCustomer(getSecurityToken, "C-E&000002", "")
-
-
-        return res
 
 class PaymentAcquirerEbizcharge(models.Model):
     _inherit = 'payment.acquirer'
 
     provider = fields.Selection(selection_add=[('ebizcharge', 'EBizCharge')])
-    ebizcharge_security_id = fields.Char(string='SecurityId', required_if_provider='ebizcharge', groups='base.group_user')
+    ebizcharge_security_id = fields.Char(string='SecurityId', required_if_provider='ebizcharge',
+                                         groups='base.group_user')
     ebizcharge_user_id = fields.Char(string='UserId', required_if_provider='ebizcharge', groups='base.group_user')
     ebizcharge_password = fields.Char(string='Password', required_if_provider='ebizcharge', groups='base.group_user')
+    ebizcharge_sync = fields.Boolean(string='EBizCharge Syncing', groups='base.group_user')
+
+    def import_invoices(self):
+        print("Import invoices functionality")
 
     def _get_feature_support(self):
         """Get advanced feature support by provider.
@@ -90,130 +145,207 @@ class PaymentAcquirerEbizcharge(models.Model):
         """
         res = super(PaymentAcquirerEbizcharge, self)._get_feature_support()
         res['authorize'].append('ebizcharge')
-        #res['tokenize'].append('ebizcharge')
+        # res['tokenize'].append('ebizcharge')
         return res
 
     def _get_ebizcharge_urls(self, environment):
         """ Authorize URLs """
         _logger.info(str(self.values))
         dat = ebiz_form_stub % self.values
-        retxml= somereq("","",dat,"soap.ebizcharge.net","eBizService.svc","https")
+        retxml = somereq("", "", dat, "soap.ebizcharge.net", "eBizService.svc", "https")
         _logger.info(str(retxml))
-        url= retxml.split("<GetEbizWebFormURLResult>")[1].split("</GetEbizWebFormURLResult>")[0]
-        url= url.split("_")[0] 
+        url = retxml.split("<GetEbizWebFormURLResult>")[1].split("</GetEbizWebFormURLResult>")[0]
+        url = url.split("_")[0]
 
         return {'ebizcharge_form_url': url}
-
 
     def _ebizcharge_generate_hashing(self, values):
         return ""
 
     ''' New implementation  '''
+
     def ebizcharge_customer(self, values):
         self.ensure_one()
 
         wsdl = 'https://soap.ebizcharge.net/eBizService.svc?singleWsdl'
         client = zeep.Client(wsdl=wsdl)
 
-        getSecurityToken = {
+        ''' Get request token'''
+        # getSecurityToken = {
+        #     "UserId": self.ebizcharge_user_id,
+        #     "SecurityId": self.ebizcharge_security_id,
+        #     "Password": self.ebizcharge_password}
+
+        '''  Test case to add customer  '''
+        # dummy_customer = {
+        #     "FirstName": values['partner_first_name'],
+        #     "LastName": values['partner_last_name'],
+        #     "CustomerId": 341,
+        #     # "CompanyName": company_name,
+        #     "Phone": values['partner_phone'],
+        #     "BillingAddress": billingAddress
+        # }
+
+        '''  Correct implementation of addCustomer  '''
+        securityToken = {
             "UserId": self.ebizcharge_user_id,
             "SecurityId": self.ebizcharge_security_id,
-            "Password": self.ebizcharge_password}
+            "Password": self.ebizcharge_password
+        }
 
-        addSecurityToken = {
-            "UserId": self.ebizcharge_user_id,
-            "SecurityId": self.ebizcharge_security_id,
-            "Password": self.ebizcharge_password}
+        try:
+            client.service.GetCustomer(securityToken, "", values['partner'].ebizcharge_customer_id)
+        except:
+            billingAddress = {
+                "Address1": values['billing_partner_address'],
+                "City": values['billing_partner_city'],
+                "ZipCode": values['billing_partner_zip'],
+                "State": values['partner_state'].display_name
+            }
 
+            customer = {
+                "FirstName": values['partner_first_name'],
+                "LastName": values['partner_last_name'],
+                "Email": values['partner_email'],
+                "CustomerId": values['partner_id'],
+                # "CompanyName": values[''],
+                "Phone": values['partner_phone'],
+                "BillingAddress": billingAddress
+            }
+
+            add_response = client.service.AddCustomer(securityToken, customer)
+
+            if not add_response['Error']:
+                odoo_customer = self.env['res.partner'].search([('id', '=', add_response['CustomerId'])])
+                # odoo_customer = self.env['res.partner'].search([('id', '=', values['partner_id'])])
+                odoo_customer.write({
+                    'ebizcharge_customer_id': add_response['CustomerInternalId'],
+                })
+                self.env.cr.commit()
+
+
+        '''  SearchCustomerList implementation  '''
         # searchFilter = {
         #     "FieldName": "CustomerId",
         #     "ComparisonOperator": "eq",
         #     'FieldValue': values['partner_id']
         # }
-
-        # complex_filter = [{
-        #     "filter":
-        #     [{
-        #     "FieldName": "CustomerId",
-        #     "FieldValue": "3",
-        #     "ComparisonOperator": "eq",
-        #     }]
-        # }]
-
-        complex_filter = {
-            "FieldName": "CustomerId",
-            "FieldValue": "3",
-            "ComparisonOperator": "eq",
-
-        }
-
-        ''' According to  PHP implementation  '''
-        code_filters = {
-            "FieldName": "Email",
-            "ComparisonOperator": "eq",
-            "FieldValue" : values['partner_email']
-        }
-
-        params = {
-            "securityToken": getSecurityToken,
-            "filters": {"SearchFilter": code_filters},
-            "includeCustomerToken": 1,
-            "includePaymentMethodProfiles": 0,
-            "countOnly": 0,
-            "start": 0,
-            "limit": 10
-        }
-
-        # get_result = client.service.GetCustomer(getSecurityToken, values['partner_id'], "")
-        try:
-            # client.service.SearchCustomerList(getSecurityToken, code_filters, 1, 0, 0, 0, 100)
-            search_customer = client.service.SearchCustomerList(params)
-            get_result = client.service.GetCustomer(getSecurityToken, "200233", "")
-        except:
-
-            customer = {
-                "FirstName": values['partner_first_name'],
-                "LastName": values['partner_last_name'],
-                "CustomerId": values['partner_id'],
-                # "CompanyName": company_name,
-                "Phone": values['partner_phone'] }
-
-            result = client.service.AddCustomer(addSecurityToken, customer)
-
-            odoo_customer = self.env['res.partner'].search([('id', '=', result['CustomerId'])])
-
-            odoo_customer.write({
-                'ebizcharge_customer_id' : result['CustomerInternalId'],
-                'ebizcharge_security_token': result['CustomerToken']
-            })
-            self.env.cr.commit()
-            print("No record Found")
-        print("Out of Get Request")
-        # addSecurityToken = {
+        #
+        # # complex_filter = [{
+        # #     "filter":
+        # #     [{
+        # #     "FieldName": "CustomerId",
+        # #     "FieldValue": "3",
+        # #     "ComparisonOperator": "eq",
+        # #     }]
+        # # }]
+        #
+        # securityToken = {
         #     "UserId": self.ebizcharge_user_id,
         #     "SecurityId": self.ebizcharge_security_id,
         #     "Password": self.ebizcharge_password}
-
-        ''' For company  '''
-        # if values['partner_company_name']:
-        #     company_name = values['partner_company_name']
-        # else:
-        #     company_name = ""
-
-        # customer = {
-        #             "FirstName": values['partner_first_name'],
-        #             "LastName": values['partner_last_name'],
-        #             "CustomerId": values['partner_id'],
-        #             # "CompanyName": company_name,
-        #             "Phone": values['partner_phone'],}
-
-        # result = client.service.AddCustomer(addSecurityToken, customer)
-        print("Testing")
+        #
+        # filter = {
+        #     "SearchFilter": {
+        #         "FieldName": "CustomerId",
+        #         "ComparisonOperator": "eq",
+        #         "FieldValue": "3"
+        #     }
+        # }
+        #
+        # complex_filter = {
+        #     "FieldName": "CustomerId",
+        #     "ComparisonOperator": "eq",
+        #     "FieldValue": "3"
+        # }
+        #
+        # ''' According to  PHP implementation  '''
+        # code_filters = {
+        #     "FieldName": "Email",
+        #     "ComparisonOperator": "eq",
+        #     "FieldValue": values['partner_email']
+        # }
+        #
+        # params = {
+        #     "securityToken": securityToken,
+        #     "filters": {"SearchFilter": code_filters},
+        #     "includeCustomerToken": 1,
+        #     "includePaymentMethodProfiles": 0,
+        #     "countOnly": 0,
+        #     "start": 0,
+        #     "limit": 10
+        # }
+        #
+        # params1 = [
+        #     securityToken,
+        #     {"SearchFilter": complex_filter},
+        #     1,
+        #     0,
+        #     0,
+        #     0,
+        #     10]
+        #
+        # params2 = [
+        #     securityToken,
+        #     complex_filter,
+        #     1,
+        #     0,
+        #     0,
+        #     0,
+        #     10]
+        #
+        # # get_result = client.service.GetCustomer(getSecurityToken, values['partner_id'], "")
+        # try:
+        #     new_search_customer = client.service.SearchCustomerList(securityToken, filter, 1, 0, 0, 0, 0, 100)
+        #     search_customer = client.service.SearchCustomerList(securityToken, complex_filter, 1, 0, 0, 0, 100)
+        #     # search_customer = client.service.SearchCustomerList(params)
+        #     get_result = client.service.GetCustomer(securityToken, "3", "")
+        #     search_customers = client.service.SearchCustomers(securityToken, "", "3", 0, 100, "Saeed")
+        # except:
+        #
+        #     customer = {
+        #         "FirstName": values['partner_first_name'],
+        #         "LastName": values['partner_last_name'],
+        #         "CustomerId": values['partner_id'],
+        #         # "CompanyName": company_name,
+        #         "Phone": values['partner_phone']}
+        #
+        #     result = client.service.AddCustomer(securityToken, customer)
+        #
+        #     odoo_customer = self.env['res.partner'].search([('id', '=', result['CustomerId'])])
+        #
+        #     odoo_customer.write({
+        #         'ebizcharge_customer_id': result['CustomerInternalId'],
+        #         # 'ebizcharge_security_token': result['CustomerToken']
+        #     })
+        #     self.env.cr.commit()
+        #     print("No record Found")
+        # print("Out of Get Request")
+        # # addSecurityToken = {
+        # #     "UserId": self.ebizcharge_user_id,
+        # #     "SecurityId": self.ebizcharge_security_id,
+        # #     "Password": self.ebizcharge_password}
+        #
+        # ''' For company  '''
+        # # if values['partner_company_name']:
+        # #     company_name = values['partner_company_name']
+        # # else:
+        # #     company_name = ""
+        #
+        # # customer = {
+        # #             "FirstName": values['partner_first_name'],
+        # #             "LastName": values['partner_last_name'],
+        # #             "CustomerId": values['partner_id'],
+        # #             # "CompanyName": company_name,
+        # #             "Phone": values['partner_phone'],}
+        #
+        # # result = client.service.AddCustomer(addSecurityToken, customer)
+        # print("Testing")
 
     def ebizcharge_form_generate_values(self, values):
         self.ensure_one()
-        print("Running")
 
+        '''Comment For Testing'''
         self.ebizcharge_customer(values)
 
         # State code is only supported in US, use state name by default
@@ -221,7 +353,8 @@ class PaymentAcquirerEbizcharge(models.Model):
         if values.get('partner_country') and values.get('partner_country') == self.env.ref('base.us', False):
             state = values['partner_state'].code if values.get('partner_state') else ''
         billing_state = values['billing_partner_state'].name if values.get('billing_partner_state') else ''
-        if values.get('billing_partner_country') and values.get('billing_partner_country') == self.env.ref('base.us', False):
+        if values.get('billing_partner_country') and values.get('billing_partner_country') == self.env.ref('base.us',
+                                                                                                           False):
             billing_state = values['billing_partner_state'].code if values.get('billing_partner_state') else ''
 
         base_url = self.env['ir.config_parameter'].get_param('web.base.url')
@@ -235,13 +368,13 @@ class PaymentAcquirerEbizcharge(models.Model):
             'Sequence': '%s%s' % (self.id, int(time.time())),
             'Version': '1.0',
             'TimeStamp': datetime.now().strftime("%Y-%m-%dT00:00:00-00:00"),
-            #'appurl': urlparse.urljoin(base_url, EbizchargeController._approved_url)+'?reference='+str(ebizcharge_tx_values["reference"])
+            # 'appurl': urlparse.urljoin(base_url, EbizchargeController._approved_url)+'?reference='+str(ebizcharge_tx_values["reference"])
             'appurl': urls.url_join(base_url, EbizchargeController._approved_url),
-            #'appurl':'',
-            #'decurl': urls.url_join(base_url, EbizchargeController._cancel_url),
-            #'errurl': urls.url_join(base_url, EbizchargeController._error_url),
-            'decurl':'',
-            'errurl':'',
+            # 'appurl':'',
+            # 'decurl': urls.url_join(base_url, EbizchargeController._cancel_url),
+            # 'errurl': urls.url_join(base_url, EbizchargeController._error_url),
+            'decurl': '',
+            'errurl': '',
             'address': values.get('partner_address'),
             'city': values.get('partner_city'),
             'country': values.get('partner_country') and values.get('partner_country').name or '',
@@ -253,7 +386,8 @@ class PaymentAcquirerEbizcharge(models.Model):
             'state': state,
             'billing_address': values.get('billing_partner_address'),
             'billing_city': values.get('billing_partner_city'),
-            'billing_country': values.get('billing_partner_country') and values.get('billing_partner_country').name or '',
+            'billing_country': values.get('billing_partner_country') and values.get(
+                'billing_partner_country').name or '',
             'billing_email': values.get('billing_partner_email'),
             'billing_zip_code': values.get('billing_partner_zip'),
             'billing_first_name': values.get('billing_partner_first_name'),
@@ -267,10 +401,9 @@ class PaymentAcquirerEbizcharge(models.Model):
         return ebizcharge_tx_values
 
     def ebizcharge_get_form_action_url(self):
-        self.ensure_one()
+        # self.ensure_one()
         environment = 'prod' if self.state == 'enabled' else 'test'
         return self._get_ebizcharge_urls(environment)['ebizcharge_form_url']
-		
 
     @api.model
     def ebizcharge_s2s_form_process(self, data):
@@ -293,14 +426,16 @@ class PaymentAcquirerEbizcharge(models.Model):
         for field_name in mandatory_fields:
             if not data.get(field_name):
                 error[field_name] = 'missing'
-        if data['cc_expiry'] and datetime.now().strftime('%y%M') > datetime.strptime(data['cc_expiry'], '%M / %y').strftime('%y%M'):
+        if data['cc_expiry'] and datetime.now().strftime('%y%M') > datetime.strptime(data['cc_expiry'],
+                                                                                     '%M / %y').strftime('%y%M'):
             return False
         return False if error else True
 
-    #def ebizcharge_test_credentials(self):
-        #self.ensure_one()
-        #transaction = AuthorizeAPI(self.acquirer_id)
-        #return transaction.test_authenticate()
+    # def ebizcharge_test_credentials(self):
+    # self.ensure_one()
+    # transaction = AuthorizeAPI(self.acquirer_id)
+    # return transaction.test_authenticate()
+
 
 class TxAuthorize(models.Model):
     _inherit = 'payment.transaction'
@@ -349,10 +484,10 @@ class TxAuthorize(models.Model):
     def _ebizcharge_form_get_invalid_parameters(self, data):
         invalid_parameters = []
 
-        #if self.acquirer_reference and data.get('x_trans_id') != self.acquirer_reference:
+        # if self.acquirer_reference and data.get('x_trans_id') != self.acquirer_reference:
         #    invalid_parameters.append(('Transaction Id', data.get('TranRefNum'), self.acquirer_reference))
         # check what is buyed
-        #if float_compare(float(data.get('x_amount', '0.0')), self.amount, 2) != 0:
+        # if float_compare(float(data.get('x_amount', '0.0')), self.amount, 2) != 0:
         #    invalid_parameters.append(('Amount', data.get('x_amount'), '%.2f' % self.amount))
         return invalid_parameters
 
@@ -360,29 +495,29 @@ class TxAuthorize(models.Model):
         self.write({'state': 'done',
                     'acquirer_reference': data.get('TranRefNum'),
                     'date_validate': fields.Datetime.now(),
-                })
+                    })
         return True
 
     def ebizcharge_s2s_do_transaction(self, **data):
         self.ensure_one()
-        #transaction = AuthorizeAPI(self.acquirer_id)
-        #if self.acquirer_id.auto_confirm != "ebizcharge":
-            #res = transaction.auth_and_capture(self.payment_token_id, self.amount, self.reference)
-        #else:
-            #res = transaction.ebizcharge(self.payment_token_id, self.amount, self.reference)
-        #return self._ebizcharge_s2s_validate_tree(res)
+        # transaction = AuthorizeAPI(self.acquirer_id)
+        # if self.acquirer_id.auto_confirm != "ebizcharge":
+        # res = transaction.auth_and_capture(self.payment_token_id, self.amount, self.reference)
+        # else:
+        # res = transaction.ebizcharge(self.payment_token_id, self.amount, self.reference)
+        # return self._ebizcharge_s2s_validate_tree(res)
 
-    #def ebizcharge_s2s_capture_transaction(self):
-        #self.ensure_one()
-        #transaction = AuthorizeAPI(self.acquirer_id)
-        #tree = transaction.capture(self.acquirer_reference or '', self.amount)
-        #return self._ebizcharge_s2s_validate_tree(tree)
+    # def ebizcharge_s2s_capture_transaction(self):
+    # self.ensure_one()
+    # transaction = AuthorizeAPI(self.acquirer_id)
+    # tree = transaction.capture(self.acquirer_reference or '', self.amount)
+    # return self._ebizcharge_s2s_validate_tree(tree)
 
-    #def ebizcharge_s2s_void_transaction(self):
-        #self.ensure_one()
-        #transaction = AuthorizeAPI(self.acquirer_id)
-        #tree = transaction.void(self.acquirer_reference or '')
-        #return self._ebizcharge_s2s_validate_tree(tree)
+    # def ebizcharge_s2s_void_transaction(self):
+    # self.ensure_one()
+    # transaction = AuthorizeAPI(self.acquirer_id)
+    # tree = transaction.void(self.acquirer_reference or '')
+    # return self._ebizcharge_s2s_validate_tree(tree)
 
     def _ebizcharge_s2s_validate_tree(self, tree):
         return self._ebizcharge_s2s_validate(tree)
@@ -449,7 +584,7 @@ class TxAuthorize(models.Model):
     _inherit = 'payment.token'
 
     ebizcharge_profile = fields.Char(string='Authorize.net Profile ID', help='This contains the unique reference '
-                                    'for this partner/payment token combination in the Authorize.net backend')
+                                                                             'for this partner/payment token combination in the Authorize.net backend')
     provider = fields.Selection(string='Provider', related='acquirer_id.provider')
     save_token = fields.Selection(string='Save Cards', related='acquirer_id.save_token')
 

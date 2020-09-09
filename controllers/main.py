@@ -2,6 +2,7 @@
 
 import pprint
 import logging
+import werkzeug
 from werkzeug import urls, utils
 
 from odoo import http, _
@@ -16,23 +17,89 @@ class EbizchargeController(http.Controller):
     _cancel_url = '/payment/ebizcharge/cancel/'
     _error_url = '/payment/ebizcharge/error'
 
-    @http.route([
-        '/shop/confirmation/',
-        '/payment/ebizcharge/cancel/',
-        '/payment/ebizcharge/error',
-    ], type='http', auth='public', csrf=False)
+    ''' Rizwan implementation '''
+    # @http.route([
+    #     '/shop/confirmation/',
+    #     '/payment/ebizcharge/cancel/',
+    #     '/payment/ebizcharge/error',
+    # ], type='http', auth='public', csrf=False)
+    # def ebizcharge_form_feedback(self, **post):
+    #     #_logger.info('Ebizcharge: entering form_feedback with post data %s', pprint.pformat(post))
+    #     return_url = '/'
+    #
+    #     if post:
+    #         request.env['payment.transaction'].sudo().form_feedback(post, 'ebizcharge')
+    #         # return werkzeug.utils.redirect('/payment/process')
+    #
+    #
+    #         return_url = post.pop('return_url', '/shop/payment/validate')
+    #     base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+    #     _logger.info('Ebizcharge: entering form_feedback with post data %s', pprint.pformat(return_url))
+    #     return request.render('payment_ebizcharge.payment_ebizcharge_redirect', {
+    #         'return_url': urls.url_join(base_url, return_url)
+    #     })
+    #     #return werkzeug.utils.redirect(return_url)
+
+    ''' Attiq Implementation '''
+
+
+    def ebizcharge_validate_data(self, **post):
+        res = False
+
+        if post['TranResult'] == 'Approved':
+            ''' Add customer security token by write in res.partner '''
+
+            _logger.info('Ebizcharge: validated data')
+            reference = post['TransactionLookupKey']
+            tx = request.env['payment.transaction'].sudo().search([('reference', '=', reference)])
+            tx._set_transaction_done()
+            # so = request.env['sale.order'].sudo().search([('name', '=', reference)])
+            # tx.write({
+            #     'state': 'done',
+            # })
+            # so.write({
+            #     'state': 'done',
+            # })
+            res = request.env['payment.transaction'].sudo().form_feedback(post, 'ebizcharge')
+            # self.env.cr.commit()
+
+        return res
+
+    ''' Rizwan implementation '''
+    # @http.route([
+    #     #'/payment/ebizcharge/approved/',
+    #     # Error here
+	#     '/shop/confirmation/',
+    #     '/payment/ebizcharge/cancel/',
+    #     '/payment/ebizcharge/error',
+    # ], type='http', auth='public', csrf=False)
+    # def ebizcharge_form_return(self, **post):
+    #     _logger.info(
+    #         'ebizcharge: entering form_feedback with post data %s', pprint.pformat(post))
+    #     if post:
+    #         request.env['payment.transaction'].sudo().form_feedback(post, 'ebizcharge')
+    #         if post['TranResult'] == 'Approved':
+    #             reference = post['TransactionLookupKey']
+    #             tx = request.env['payment.transaction'].sudo().search([('reference', '=', reference)])
+    #             tx.write({
+    #                 'state': 'done',
+    #             })
+    #             # self.env.cr.commit()
+    #     return werkzeug.utils.redirect('/payment/process')
+
+
+    @http.route('/shop/confirmation/', type='http', auth="public", methods=['POST', 'GET'], csrf=False)
     def ebizcharge_form_feedback(self, **post):
-        #_logger.info('Ebizcharge: entering form_feedback with post data %s', pprint.pformat(post))
-        return_url = '/'
+        """ Ebizcharge """
+
+        _logger.info('Beginning Ebizcharge form_feedback with post data %s', pprint.pformat(post))  # debug
         if post:
-            request.env['payment.transaction'].sudo().form_feedback(post, 'ebizcharge')
-            return_url = post.pop('return_url', '/shop/payment/validate')
-        base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        _logger.info('Ebizcharge: entering form_feedback with post data %s', pprint.pformat(return_url))
-        return request.render('payment_ebizcharge.payment_ebizcharge_redirect', {
-            'return_url': urls.url_join(base_url, return_url)
-        })
-        #return werkzeug.utils.redirect(return_url)
+            try:
+                self.ebizcharge_validate_data(**post)
+            except ValidationError:
+                _logger.exception('Unable to validate the Ebizcharge payment')
+
+        return werkzeug.utils.redirect('/payment/process')
 
     @http.route(['/payment/ebizcharge/s2s/create_json'], type='json', auth='public')
     def ebizcharge_s2s_create_json(self, **kwargs):
