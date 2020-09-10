@@ -17,6 +17,8 @@ from odoo.tools.safe_eval import safe_eval
 
 _logger = logging.getLogger(__name__)
 
+
+''' Not required for Invoice sync in Ebizcharge at Create '''
 class InvoiceEbizcharge(models.Model):
     _inherit = 'account.move'
 
@@ -68,12 +70,19 @@ class InvoiceEbizcharge(models.Model):
 
         return res
 
+''' Not required for Customer sync in Ebizcharge at Create '''
 class CustomerEbizcharge(models.Model):
     _inherit = 'res.partner'
+
+    '''  Correct fields  '''
+    # ebizcharge_customer_id = fields.Char(string='Customer Id', required=False)
+    # ebizcharge_customer_internal_id = fields.Char(string='Customer Internal Id', required=False)
+    # ebizcharge_customer_token = fields.Char(string='Customer Token', required=False)
 
     ebizcharge_customer_id = fields.Char(string='Customer Internal Id', required=False)
     ebizcharge_security_token = fields.Char(string='Security Token', required=False)
 
+    '''  Create Override  '''
     # @api.model
     # # def create(self, values):
     # def create(self, values):
@@ -122,15 +131,117 @@ class CustomerEbizcharge(models.Model):
 class PaymentAcquirerEbizcharge(models.Model):
     _inherit = 'payment.acquirer'
 
+    '''  Last Sync memory  '''
+    # ebizcharge_last_sync = fields.Datetime(string='Last Sync Date', readonly=True)
     provider = fields.Selection(selection_add=[('ebizcharge', 'EBizCharge')])
-    ebizcharge_security_id = fields.Char(string='SecurityId', required_if_provider='ebizcharge',
-                                         groups='base.group_user')
+    ebizcharge_security_id = fields.Char(string='SecurityId', required_if_provider='ebizcharge', groups='base.group_user')
     ebizcharge_user_id = fields.Char(string='UserId', required_if_provider='ebizcharge', groups='base.group_user')
     ebizcharge_password = fields.Char(string='Password', required_if_provider='ebizcharge', groups='base.group_user')
     ebizcharge_sync = fields.Boolean(string='EBizCharge Syncing', groups='base.group_user')
 
-    def import_invoices(self):
-        print("Import invoices functionality")
+    def upload_invoices(self):
+        print("Upload invoices functionality")
+
+        # if self.state == 'enabled':
+        #     wsdl = 'https://soap.ebizcharge.net/eBizService.svc?singleWsdl'
+        #     client = zeep.Client(wsdl=wsdl)
+        #
+        #     securityToken = {
+        #         "UserId": self.ebizcharge_user_id,
+        #         "SecurityId": self.ebizcharge_security_id,
+        #         "Password": self.ebizcharge_password
+        #     }
+        #
+        #     ''' Get all invoices greater than Last Sync date/time  '''
+        #     #  For Now its getting all available invoices
+        #     invoices = self.env['account.move'].search([])
+        #
+        #     for invoice in invoices:
+        #         print(invoice.id)
+        #
+        #         '''  Dict For testing  '''
+        #         # dummy_invoice = {
+        #         #     "CustomerId": "C-E&000002",
+        #         #     "SubCustomerId": "",
+        #         #     "InvoiceNumber": "00102565",
+        #         #     "InvoiceDate": "04/02/2016",
+        #         #     "InvoiceDueDate": "08/12/2016",
+        #         #     "InvoiceAmount": 2000.45,
+        #         #     "AmountDue": 200.45,
+        #         #     "DivisionId": "001",
+        #         #     "PoNum": "Po001",
+        #         #     "SoNum": "",
+        #         #     "NotifyCustomer": 0
+        #         # }
+        #
+        #         invoice_dict = {
+        #             "CustomerId": invoice.partner_id.id,
+        #             "SubCustomerId": "",
+        #             "InvoiceNumber": invoice.name,
+        #             "InvoiceDate": invoice.invoice_date if invoice.invoice_date else "",
+        #             "InvoiceDueDate": invoice.invoice_date_due if invoice.invoice_date_due else "",
+        #             "InvoiceAmount": invoice.amount_total,
+        #             "AmountDue": invoice.amount_residual,
+        #             "DivisionId": "",
+        #             "PoNum": "",
+        #             "SoNum": "",
+        #             "NotifyCustomer": 0
+        #         }
+        #
+        #         res = client.service.AddInvoice(securityToken, invoice_dict)
+
+        return self.action_of_button()
+
+    def action_of_button(self):
+        # do what ever login like in your case send an invitation
+        ...
+        ...
+        # don't forget to add translation support to your message _()
+        message_id = self.env['message.wizard'].create({'text': "Upload Invoices Successfully."})
+        return {
+            'name': 'Successfull',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'message.wizard',
+            'res_id': message_id.id,
+            'target': 'new',
+        }
+
+        '''  Update Last sync date/time here  '''
+
+        '''  Add customer if not exists in Ebizcharge  '''
+        # try:
+            #     get_response = client.service.GetCustomer(securityToken, "", values['partner'].ebizcharge_customer_id)
+            # except:
+            #     billingAddress = {
+            #         "Address1": values['billing_partner_address'],
+            #         "City": values['billing_partner_city'],
+            #         "ZipCode": values['billing_partner_zip'],
+            #         "State": values['partner_state'].display_name
+            #     }
+            #
+            #     customer = {
+            #         "FirstName": values['partner_first_name'],
+            #         "LastName": values['partner_last_name'],
+            #         "Email": values['partner_email'],
+            #         "CustomerId": values['partner_id'],
+            #         # "CompanyName": values[''],
+            #         "Phone": values['partner_phone'],
+            #         "BillingAddress": billingAddress
+            #     }
+            #
+            #     add_response = client.service.AddCustomer(securityToken, customer)
+            #
+            #     if not add_response['Error']:
+            #         odoo_customer = self.env['res.partner'].search([('id', '=', add_response['CustomerId'])])
+            #         # odoo_customer = self.env['res.partner'].search([('id', '=', values['partner_id'])])
+            #         odoo_customer.write({
+            #             'ebizcharge_customer_id': add_response['CustomerInternalId'],
+            #         })
+            #         self.env.cr.commit()
+
+
+
 
     def _get_feature_support(self):
         """Get advanced feature support by provider.
