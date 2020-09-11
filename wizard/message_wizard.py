@@ -9,7 +9,7 @@ class CustomMessageWizard(models.TransientModel):
             return self.env.context.get("message")
         return False
 
-    text = fields.Text(readonly=True, default=get_default)
+    message = fields.Text(readonly=True, default=get_default)
 
 
 

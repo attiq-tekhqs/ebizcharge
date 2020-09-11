@@ -6,7 +6,7 @@
             <field name="arch" type="xml" >
                 <form string="Message">
                     <group class="oe_title">
-                        <field name="text"/>
+                        <field name="message"/>
                     </group>
                     <footer>
 

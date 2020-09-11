@@ -132,7 +132,7 @@ class PaymentAcquirerEbizcharge(models.Model):
     _inherit = 'payment.acquirer'
 
     '''  Last Sync memory  '''
-    # ebizcharge_last_sync = fields.Datetime(string='Last Sync Date', readonly=True)
+    ebizcharge_invoice_last_sync = fields.Datetime(string='Invoice Last Sync Date', readonly=True)
     provider = fields.Selection(selection_add=[('ebizcharge', 'EBizCharge')])
     ebizcharge_security_id = fields.Char(string='SecurityId', required_if_provider='ebizcharge', groups='base.group_user')
     ebizcharge_user_id = fields.Char(string='UserId', required_if_provider='ebizcharge', groups='base.group_user')
@@ -142,53 +142,55 @@ class PaymentAcquirerEbizcharge(models.Model):
     def upload_invoices(self):
         print("Upload invoices functionality")
 
-        # if self.state == 'enabled':
-        #     wsdl = 'https://soap.ebizcharge.net/eBizService.svc?singleWsdl'
-        #     client = zeep.Client(wsdl=wsdl)
-        #
-        #     securityToken = {
-        #         "UserId": self.ebizcharge_user_id,
-        #         "SecurityId": self.ebizcharge_security_id,
-        #         "Password": self.ebizcharge_password
-        #     }
-        #
-        #     ''' Get all invoices greater than Last Sync date/time  '''
-        #     #  For Now its getting all available invoices
-        #     invoices = self.env['account.move'].search([])
-        #
-        #     for invoice in invoices:
-        #         print(invoice.id)
-        #
-        #         '''  Dict For testing  '''
-        #         # dummy_invoice = {
-        #         #     "CustomerId": "C-E&000002",
-        #         #     "SubCustomerId": "",
-        #         #     "InvoiceNumber": "00102565",
-        #         #     "InvoiceDate": "04/02/2016",
-        #         #     "InvoiceDueDate": "08/12/2016",
-        #         #     "InvoiceAmount": 2000.45,
-        #         #     "AmountDue": 200.45,
-        #         #     "DivisionId": "001",
-        #         #     "PoNum": "Po001",
-        #         #     "SoNum": "",
-        #         #     "NotifyCustomer": 0
-        #         # }
-        #
-        #         invoice_dict = {
-        #             "CustomerId": invoice.partner_id.id,
-        #             "SubCustomerId": "",
-        #             "InvoiceNumber": invoice.name,
-        #             "InvoiceDate": invoice.invoice_date if invoice.invoice_date else "",
-        #             "InvoiceDueDate": invoice.invoice_date_due if invoice.invoice_date_due else "",
-        #             "InvoiceAmount": invoice.amount_total,
-        #             "AmountDue": invoice.amount_residual,
-        #             "DivisionId": "",
-        #             "PoNum": "",
-        #             "SoNum": "",
-        #             "NotifyCustomer": 0
-        #         }
-        #
-        #         res = client.service.AddInvoice(securityToken, invoice_dict)
+        ''' Functionality to Upload invoices from Odoo'''
+        if self.state == 'enabled':
+            wsdl = 'https://soap.ebizcharge.net/eBizService.svc?singleWsdl'
+            client = zeep.Client(wsdl=wsdl)
+
+            securityToken = {
+                "UserId": self.ebizcharge_user_id,
+                "SecurityId": self.ebizcharge_security_id,
+                "Password": self.ebizcharge_password
+            }
+
+            ''' Get all invoices greater than Last Sync date/time  '''
+            #  For Now its getting all available invoices
+            invoices = self.env['account.move'].search([])
+
+            for invoice in invoices:
+                print(invoice.id)
+
+                '''  Dict For testing  '''
+                # dummy_invoice = {
+                #     "CustomerId": "C-E&000002",
+                #     "SubCustomerId": "",
+                #     "InvoiceNumber": "00102565",
+                #     "InvoiceDate": "04/02/2016",
+                #     "InvoiceDueDate": "08/12/2016",
+                #     "InvoiceAmount": 2000.45,
+                #     "AmountDue": 200.45,
+                #     "DivisionId": "001",
+                #     "PoNum": "Po001",
+                #     "SoNum": "",
+                #     "NotifyCustomer": 0
+                # }
+
+                invoice_dict = {
+                    "CustomerId": invoice.partner_id.id,
+                    "SubCustomerId": "",
+                    "InvoiceNumber": invoice.name,
+                    "InvoiceDate": invoice.invoice_date if invoice.invoice_date else "",
+                    "InvoiceDueDate": invoice.invoice_date_due if invoice.invoice_date_due else "",
+                    "InvoiceAmount": invoice.amount_total,
+                    "AmountDue": invoice.amount_residual,
+                    "DivisionId": "",
+                    "PoNum": "",
+                    "SoNum": "",
+                    "NotifyCustomer": 0
+                }
+
+                res = client.service.AddInvoice(securityToken, invoice_dict)
+            self.ebizcharge_invoice_last_sync = datetime.now()
 
         return self.action_of_button()
 
@@ -197,9 +199,9 @@ class PaymentAcquirerEbizcharge(models.Model):
         ...
         ...
         # don't forget to add translation support to your message _()
-        message_id = self.env['message.wizard'].create({'text': "Upload Invoices Successfully."})
+        message_id = self.env['message.wizard'].create({'message': "Upload Invoices Successfully."})
         return {
-            'name': 'Successfull',
+            'name': 'Successful',
             'type': 'ir.actions.act_window',
             'view_mode': 'form',
             'res_model': 'message.wizard',
@@ -699,6 +701,7 @@ class TxAuthorize(models.Model):
     provider = fields.Selection(string='Provider', related='acquirer_id.provider')
     save_token = fields.Selection(string='Save Cards', related='acquirer_id.save_token')
 
+    '''  Rizwan Comment  '''
     # @api.model
     # def ebizcharge_create(self, values):
     #     if values.get('cc_number'):
